@@ -1,4 +1,4 @@
-const {map, reduce, curry, compose} = require('@cullylarson/f')
+import {map, reduce, curry, compose} from '@cullylarson/f'
 
 // if promise resolve to itself, it's a promise
 export const isPromise = x => Promise.resolve(x) === x

@@ -1,6 +1,6 @@
-const {compose} = require('@cullylarson/f')
-const {Left, Right} = require('sanctuary-either')
-const {then, thenMap, pCatch} = require('../esm')
+import {compose} from '@cullylarson/f'
+import {Left, Right} from 'sanctuary-either'
+import {then, thenMap, pCatch} from '../esm'
 
 test('Left promise is not mapped over', () => {
     let codeReached = false
