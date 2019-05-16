@@ -111,18 +111,36 @@ export const memoizePUntil = (shouldInvalidateCache, f) => {
     }
 }
 
+const doesMap = x => {
+    let mapped = false
+    map(() => { mapped = true }, x)
+    return mapped
+}
+
+// Takes a functor containing a promise `p` and returns a promise resolving to the functor containing the resolution of `p `. The
+// functor must conform to fantasy-land specs.
+//
+// functorPFlip :: Functor(Promise(x)) -> Promise(Functor(x))
+export const functorPFlip = x => {
+    // doesn't map so mapping will do nothing, so just resolve
+    if(!doesMap(x)) return Promise.resolve(x)
+
+    return new Promise((resolve, reject) => {
+        map(p => p
+            .then(x.constructor['fantasy-land/of'])
+            .then(resolve)
+            .catch(reject), x)
+    })
+}
+
 // Takes a function and a promise resolving to a functor and maps the provided function over the functor. If the function itself
 // returns a promise `p`, then the return promise will resolve to the functor containing the resolved value of `p` (rather than
 // resolving to a functor containing a promise).
 //
+// In the case of a functor containing a promise, this is the same as doing: then(functorPFlip(map(f)))
+//
 // thenMap :: Function -> Functor(Promise(x)|x) -> Promise(Functor(x))
 export const thenMap = curry((f, p) => {
-    const doesMap = x => {
-        let mapped = false
-        map(() => { mapped = true }, x)
-        return mapped
-    }
-
     return new Promise((resolve, reject) => {
         p
             .then(functor => {
