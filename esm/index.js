@@ -149,6 +149,9 @@ export const thenMap = curry((f, p) => {
                     resolve(functor)
                 }
                 else {
+                    // x is wrapped in a container, and f might return a promise. So mapping over
+                    // x may return a promise inside the container. we need to get the
+                    // promise out
                     compose(
                         map(x => {
                             if(isPromise(x)) {
@@ -165,5 +168,43 @@ export const thenMap = curry((f, p) => {
                 }
             })
             .catch(reject)
+    })
+})
+
+// Like thenMap, but used when the final return value (or resolution of the promise) is a functor.
+// Will flatten so that we don't get a functor in a functor.
+//
+// thenChain :: Function -> Functor(Promise(Functor(x))|Functor(xx)) -> Promise(Functor(x))
+export const thenChain = curry((f, p) => {
+    return new Promise((resolve, reject) => {
+        p
+            .then(functor => {
+                // if it doesn't map, just resolve (this would happen in the case of e.g. a Left)
+                if(!doesMap(functor)) {
+                    resolve(functor)
+                }
+                else {
+                    // x is wrapped in a container, and f might return a promise. So mapping over
+                    // x may return a promise inside the container. we need to get the
+                    // promise out
+                    compose(
+                        map(x => {
+                            if(isPromise(x)) {
+                                x
+                                    // we want to resolve the value, not the promise.
+                                    // no need to contain the value, it already is.
+                                    .then(y => resolve(y))
+                                    .catch(reject)
+                            }
+                            else {
+                                // no need to contain the value, it already is.
+                                resolve(x)
+                            }
+                        }),
+                        map(f)
+                    )(functor)
+                }
+            })
+            .catch(err => reject(err))
     })
 })
