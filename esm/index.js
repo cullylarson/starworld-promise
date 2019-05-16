@@ -110,3 +110,42 @@ export const memoizePUntil = (shouldInvalidateCache, f) => {
         }
     }
 }
+
+// Takes a function and a promise resolving to a functor and maps the provided function over the functor. If the function itself
+// returns a promise `p`, then the return promise will resolve to the functor containing the resolved value of `p` (rather than
+// resolving to a functor containing a promise).
+//
+// thenMap :: Function -> Functor(Promise(x)|x) -> Promise(Functor(x))
+export const thenMap = curry((f, p) => {
+    const doesMap = x => {
+        let mapped = false
+        map(() => { mapped = true }, x)
+        return mapped
+    }
+
+    return new Promise((resolve, reject) => {
+        p
+            .then(functor => {
+                // if it doesn't map, just resolve (this would happen in the case of e.g. a Left)
+                if(!doesMap(functor)) {
+                    resolve(functor)
+                }
+                else {
+                    compose(
+                        map(x => {
+                            if(isPromise(x)) {
+                                x
+                                    .then(y => resolve(functor.constructor['fantasy-land/of'](y)))
+                                    .catch(reject)
+                            }
+                            else {
+                                resolve(functor.constructor['fantasy-land/of'](x))
+                            }
+                        }),
+                        map(f)
+                    )(functor)
+                }
+            })
+            .catch(reject)
+    })
+})
