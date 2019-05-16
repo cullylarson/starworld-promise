@@ -1,5 +1,8 @@
 const {map, reduce, curry, compose} = require('@cullylarson/f')
 
+// if promise resolve to itself, it's a promise
+export const isPromise = x => Promise.resolve(x) === x
+
 export const then = curry((f, p) => p.then(f))
 export const pCatch = curry((f, p) => p.catch(f))
 
