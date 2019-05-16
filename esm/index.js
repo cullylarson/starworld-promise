@@ -1,7 +1,7 @@
 const {map, reduce, curry, compose} = require('@cullylarson/f')
 
-const then = curry((f, p) => p.then(f))
-const pCatch = curry((f, p) => p.catch(f))
+export const then = curry((f, p) => p.then(f))
+export const pCatch = curry((f, p) => p.catch(f))
 
 // If an array, will assume an array of promises and return a single promise
 // that resolves to all of the results of the promises (e.g. Promise.all)
@@ -9,7 +9,7 @@ const pCatch = curry((f, p) => p.catch(f))
 // a single promise that resolves to the object with values as resolved values
 // (the values will no longer be promises). In this case the order of keys
 // will not be preserved.
-const pAll = ps => {
+export const pAll = ps => {
     if(Array.isArray(ps)) return Promise.all(ps)
 
     return compose(
@@ -35,7 +35,7 @@ const pAll = ps => {
 // until a spot opens up.
 //
 // f must return a Promise.
-const nConcurrent = (n, f) => {
+export const nConcurrent = (n, f) => {
     let numRunning = 0
     let queue = []
 
@@ -73,7 +73,7 @@ const nConcurrent = (n, f) => {
     }
 }
 
-const retry = (n, f) => (...args) => f(...args)
+export const retry = (n, f) => (...args) => f(...args)
     .catch(x => {
         // done trying
         if(n - 1 <= 0) throw x
@@ -81,7 +81,7 @@ const retry = (n, f) => (...args) => f(...args)
         else return retry(n - 1, f)(...args)
     })
 
-const memoizePUntil = (shouldInvalidateCache, f) => {
+export const memoizePUntil = (shouldInvalidateCache, f) => {
     let cache = {}
 
     const getFresh = (key, args) => {
@@ -106,13 +106,4 @@ const memoizePUntil = (shouldInvalidateCache, f) => {
             return getFresh(key, args)
         }
     }
-}
-
-module.exports = {
-    then,
-    pCatch,
-    pAll,
-    nConcurrent,
-    retry,
-    memoizePUntil,
 }

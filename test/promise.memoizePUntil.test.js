@@ -1,4 +1,4 @@
-const {memoizePUntil} = require('../esm/')
+import {memoizePUntil} from '../esm/'
 
 test('Single call returns expected value', () => {
     let numTries = 0

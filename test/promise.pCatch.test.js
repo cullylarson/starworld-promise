@@ -1,4 +1,4 @@
-const {pCatch} = require('../esm/')
+import {pCatch} from '../esm/'
 
 test('Works the same as a normal catch on reject.', () => {
     expect.assertions(1)

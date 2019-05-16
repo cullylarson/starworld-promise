@@ -1,4 +1,4 @@
-const {then} = require('../esm/')
+import {then} from '../esm/'
 
 test('Works the same as a normal then.', () => {
     expect.assertions(1)

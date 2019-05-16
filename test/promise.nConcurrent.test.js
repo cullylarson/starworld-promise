@@ -1,4 +1,4 @@
-const {nConcurrent} = require('../esm/')
+import {nConcurrent} from '../esm/'
 
 test('One call is run', () => {
     expect.assertions(1)

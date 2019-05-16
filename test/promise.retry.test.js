@@ -1,4 +1,4 @@
-const {retry} = require('../esm/')
+import {retry} from '../esm/'
 
 test('Tries once', () => {
     expect.assertions(1)
