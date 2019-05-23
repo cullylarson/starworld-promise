@@ -208,3 +208,11 @@ export const thenChain = curry((f, p) => {
             .catch(err => reject(err))
     })
 })
+
+export const bimap = curry((fLeft, fRight, x) => {
+    return x.constructor['fantasy-land/of'](
+        doesMap(x)
+            ? fRight(x.value)
+            : fLeft(x.value)
+    )
+})
