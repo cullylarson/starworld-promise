@@ -68,3 +68,28 @@ test('Multiple calls return same value until cache is invalidated', () => {
             return f()
         })
 })
+
+test('The shouldInvalidateCache function resolves to the last return of the function.', () => {
+    let called = false
+    let finalValue = 3
+
+    const f = memoizePUntil(x => {
+        if(called) expect(x).toBe(finalValue)
+
+        called = true
+
+        return true // don't memoize
+    }, () => {
+        return called
+            ? Promise.resolve(finalValue)
+            : Promise.resolve(finalValue - 1)
+    })
+
+    return f()
+        .then(x => {
+            return f()
+        })
+        .then(x => {
+            return f()
+        })
+})
