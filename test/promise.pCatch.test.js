@@ -1,4 +1,5 @@
-import {pCatch} from '../esm/'
+import {compose} from '@cullylarson/f'
+import {pCatch, then} from '../esm/'
 
 test('Works the same as a normal catch on reject.', () => {
     expect.assertions(1)
@@ -20,4 +21,21 @@ test('Works the same as a normal catch on throw.', () => {
                 throw error
             })
     )
+})
+
+test('Continues after catch.', () => {
+    const error = Error('foo')
+
+    return compose(
+        then(x => {
+            expect(x).toBe('AAA')
+        }),
+        pCatch(x => {
+            expect(x).toBe(error)
+            return 'AAA'
+        }),
+        then(x => {
+            throw error
+        }),
+    )(Promise.resolve('a'))
 })
