@@ -84,14 +84,23 @@ export const retry = (n, f) => (...args) => f(...args)
         else return retry(n - 1, f)(...args)
     })
 
+// will not cache if the promise throws an exception
 export const memoizePUntil = (shouldInvalidateCache, f) => {
     let cache = {}
 
     const getFresh = (key, args) => {
         if(cache.hasOwnProperty(key)) delete cache[key]
 
-        cache[key] = f(...args)
-        return cache[key]
+        // need to run the promise before caching it to see if it resolve or reject
+        const thePromise = f(...args)
+            .then(result => {
+                // don't cache the result until we know it resolved
+                cache[key] = thePromise
+
+                return result
+            })
+
+        return thePromise
     }
 
     return (...args) => {
