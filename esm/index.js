@@ -45,20 +45,22 @@ export const nConcurrent = (n, f) => {
     const runOne = ({args, resolve, reject}) => {
         numRunning++
 
+        const handleRunComplete = () => {
+            numRunning--
+
+            if(queue.length) {
+                runOne(queue.pop())
+            }
+        }
+
         return f.apply(null, args)
             .then(result => {
-                numRunning--
-
-                if(queue.length) {
-                    runOne(queue.pop())
-                }
+                handleRunComplete()
 
                 resolve(result)
             })
             .catch(err => {
-                if(queue.length) {
-                    runOne(queue.pop())
-                }
+                handleRunComplete()
 
                 reject(err)
             })

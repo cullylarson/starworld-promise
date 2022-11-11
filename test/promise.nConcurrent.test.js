@@ -135,3 +135,40 @@ test('Can catch exceptions', () => {
             expect(codeReached).toBe(true)
         })
 })
+
+test.only("Failed calls will not prevent others from running", () => {
+    return new Promise((resolve) => {
+        expect.assertions(2)
+
+        let numRun = 0
+        const numInitialRunners = 5
+
+        const f = nConcurrent(2, () => {
+            numRun++
+
+            const localNumRun = numRun
+
+            return new Promise((resolve, reject) => {
+                if (localNumRun <= 3) {
+                    console.log("throwing", {localNumRun})
+                    reject(Error("err"))
+                } else {
+                    resolve()
+                }
+            })
+        })
+
+        Promise.all(Array(numInitialRunners).fill(false).map(() => f().catch((x) => false))).then(() => {
+            expect(numRun).toBe(numInitialRunners)
+
+            // Wait until the others runners have completed so that none are left
+            // to call `runOne` when they resolve. If numRunners hasn't gone back
+            // below 2, then this won't ever be run.
+            f()
+                .then(() => {
+                    expect(numRun).toBe(numInitialRunners + 1)
+                    resolve()
+                })
+        })
+    })
+})
