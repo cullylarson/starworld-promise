@@ -136,7 +136,7 @@ test('Can catch exceptions', () => {
         })
 })
 
-test("Failed calls will not prevent others from running", () => {
+test('Failed calls will not prevent others from running', () => {
     return new Promise((resolve) => {
         expect.assertions(2)
 
@@ -150,8 +150,9 @@ test("Failed calls will not prevent others from running", () => {
 
             return new Promise((resolve, reject) => {
                 if (localNumRun <= 3) {
-                    reject(Error("err"))
-                } else {
+                    reject(Error('err'))
+                }
+                else {
                     resolve()
                 }
             })
